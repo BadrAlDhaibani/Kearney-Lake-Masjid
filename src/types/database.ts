@@ -25,6 +25,20 @@ export interface Announcement {
   created_by: string | null;
 }
 
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  location: string | null;
+  start_time: string;
+  end_time: string | null;
+  capacity: number | null;
+  is_published: boolean;
+  created_at: string;
+  created_by: string | null;
+}
+
 // Insert types (fields that can be omitted on insert)
 export type PrayerTimeInsert = Omit<PrayerTime, 'id' | 'updated_at'> & {
   id?: string;
@@ -40,6 +54,13 @@ export type AnnouncementInsert = Omit<Announcement, 'id' | 'created_at'> & {
 export type PrayerTimeUpdate = Partial<Omit<PrayerTime, 'id'>>;
 export type AnnouncementUpdate = Partial<Omit<Announcement, 'id' | 'created_at'>>;
 
+export type EventInsert = Omit<Event, 'id' | 'created_at'> & {
+  id?: string;
+  created_at?: string;
+};
+
+export type EventUpdate = Partial<Omit<Event, 'id' | 'created_at'>>;
+
 // Supabase Database type definition
 export interface Database {
   public: {
@@ -53,6 +74,11 @@ export interface Database {
         Row: Announcement;
         Insert: AnnouncementInsert;
         Update: AnnouncementUpdate;
+      };
+      events: {
+        Row: Event;
+        Insert: EventInsert;
+        Update: EventUpdate;
       };
     };
     Views: Record<string, never>;
