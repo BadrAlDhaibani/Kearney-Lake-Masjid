@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { PrayerTime } from '@/src/types/database';
 import { formatTime12Hour } from '@/src/lib/utils';
+import { colors } from '@/src/constants/colors';
 
 interface NextPrayerBannerProps {
   prayer: PrayerTime | null;
@@ -26,7 +27,7 @@ export function NextPrayerBanner({ prayer }: NextPrayerBannerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1B5E20',
+    backgroundColor: colors.primary,
     paddingVertical: 24,
     paddingHorizontal: 16,
     alignItems: 'center',
@@ -41,12 +42,12 @@ const styles = StyleSheet.create({
   prayerName: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.white,
     marginBottom: 4,
   },
   time: {
     fontSize: 24,
     fontWeight: '500',
-    color: '#E8F5E9',
+    color: colors.primaryTint,
   },
 });

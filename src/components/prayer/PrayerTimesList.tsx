@@ -1,6 +1,7 @@
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { PrayerTime } from '@/src/types/database';
 import { PrayerTimeCard } from './PrayerTimeCard';
+import { colors } from '@/src/constants/colors';
 
 interface PrayerTimesListProps {
   prayers: PrayerTime[];
@@ -35,7 +36,7 @@ export function PrayerTimesList({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#2f95dc"
+            tintColor={colors.primary}
           />
         ) : undefined
       }
@@ -46,7 +47,7 @@ export function PrayerTimesList({
 
 const styles = StyleSheet.create({
   list: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   listContent: {
     paddingVertical: 16,
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginHorizontal: 16,

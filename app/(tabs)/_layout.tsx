@@ -1,12 +1,13 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/src/constants/colors';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#1B5E20',
-        tabBarInactiveTintColor: '#8e8e93',
+        tabBarActiveTintColor: colors.tabActive,
+        tabBarInactiveTintColor: colors.tabInactive,
         headerShown: true,
       }}
     >
@@ -31,15 +32,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="index"
+        name="more"
         options={{
-          href: null, // Hide from tab bar until implemented
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          href: null, // Hide from tab bar until implemented
+          title: 'More',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="menu-outline" size={size} color={color} />
+          ),
+          headerShown: false,
         }}
       />
     </Tabs>

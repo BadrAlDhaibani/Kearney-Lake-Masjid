@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { NextPrayerBanner } from '@/src/components/prayer/NextPrayerBanner';
 import { PrayerTimesList } from '@/src/components/prayer/PrayerTimesList';
+import { colors } from '@/src/constants/colors';
 
 export default function PrayerTimesScreen() {
   const { prayerTimes, nextPrayer, isLoading, error, refetch } = usePrayerTimes();
@@ -45,7 +46,7 @@ export default function PrayerTimesScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#1B5E20" />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <NextPrayerBanner prayer={nextPrayer} />
       <PrayerTimesList
         prayers={prayerTimes}
@@ -60,6 +61,6 @@ export default function PrayerTimesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B5E20', // Green to match banner
+    backgroundColor: colors.primary,
   },
 });

@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { colors } from '@/src/constants/colors';
 
 interface LoadingSpinnerProps {
   size?: 'small' | 'large';
@@ -8,11 +9,16 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({
   size = 'large',
-  color = '#2f95dc',
+  color = colors.primary,
   message,
 }: LoadingSpinnerProps) {
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      accessibilityRole="progressbar"
+      accessibilityLabel={message || 'Loading'}
+      accessibilityState={{ busy: true }}
+    >
       <ActivityIndicator size={size} color={color} />
       {message && <Text style={styles.message}>{message}</Text>}
     </View>
@@ -29,7 +35,7 @@ const styles = StyleSheet.create({
   message: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

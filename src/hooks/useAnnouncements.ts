@@ -10,7 +10,7 @@ interface UseAnnouncementsResult {
   lastUpdated: Date | null;
 }
 
-export function useAnnouncements(): UseAnnouncementsResult {
+export function useAnnouncements(includeUnpublished = false): UseAnnouncementsResult {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,11 +20,16 @@ export function useAnnouncements(): UseAnnouncementsResult {
     setIsLoading(true);
     setError(null);
 
-    const { data, error: queryError } = await supabase
-      .from('announcements')
-      .select('*')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false });
+    let query = supabase.from('announcements').select('*');
+
+    if (!includeUnpublished) {
+      query = query.eq('is_published', true);
+    }
+
+    const { data, error: queryError } = await query.order(
+      includeUnpublished ? 'created_at' : 'published_at',
+      { ascending: false }
+    );
 
     if (queryError) {
       setError('Unable to load announcements. Please try again.');
@@ -35,7 +40,7 @@ export function useAnnouncements(): UseAnnouncementsResult {
     }
 
     setIsLoading(false);
-  }, []);
+  }, [includeUnpublished]);
 
   // Initial fetch
   useEffect(() => {

@@ -2,6 +2,7 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Announcement } from '@/src/types/database';
 import { AnnouncementCard } from './AnnouncementCard';
+import { colors } from '@/src/constants/colors';
 
 interface AnnouncementsListProps {
   announcements: Announcement[];
@@ -39,7 +40,7 @@ export function AnnouncementsList({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#1B5E20"
+            tintColor={colors.primary}
           />
         ) : undefined
       }
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginHorizontal: 16,

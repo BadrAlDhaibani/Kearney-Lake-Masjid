@@ -5,6 +5,7 @@ import { useAnnouncements } from '@/src/hooks/useAnnouncements';
 import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { AnnouncementsList } from '@/src/components/announcements/AnnouncementsList';
+import { colors } from '@/src/constants/colors';
 
 export default function AnnouncementsScreen() {
   const { announcements, isLoading, error, refetch } = useAnnouncements();
@@ -48,7 +49,7 @@ export default function AnnouncementsScreen() {
   // Success state
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <AnnouncementsList
         announcements={announcements}
         onRefresh={handleRefresh}
@@ -61,6 +62,6 @@ export default function AnnouncementsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
 });

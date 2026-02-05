@@ -75,6 +75,40 @@ These decisions have been made. Do not revisit or question them unless you encou
 - **Admin access:** Boolean `is_admin` flag on profiles table. Admins set manually via Supabase dashboard.
 - **Contact:** Opens native email client via `Linking.openURL()`. No in-app message storage.
 - **Notification preferences:** Per-prayer toggles for adhan alerts, plus toggles for events and announcements.
+- **Theme:** Light mode only. No dark mode support. Uses centralized color constants.
+- **Supabase client:** Untyped client (no `<Database>` generic) for simpler developer experience. Type safety is handled via manual type definitions in `src/types/database.ts`.
+
+---
+
+## Current Implementation Status
+
+### Completed (Phase 1 Partial)
+- [x] Project setup with Expo Router
+- [x] Supabase client configuration (with platform-specific storage adapters)
+- [x] Centralized color system (`src/constants/colors.ts`)
+- [x] Base UI components (LoadingSpinner, EmptyState)
+- [x] Prayer times display (hook, components, screen)
+- [x] Announcements list and detail views (hook, components, screens)
+- [x] Tab navigation (Prayer Times, News, More)
+- [x] Admin panel structure (`app/admin/`)
+- [x] Admin: Prayer times management
+- [x] Admin: Announcements management (list, create, edit)
+
+### In Progress
+- [ ] Events listing and detail views
+- [ ] Lectures with video links
+- [ ] Contact section
+- [ ] More menu completion
+
+### Not Started (Phase 2 & 3)
+- [ ] AuthContext and user authentication
+- [ ] Protected route wrappers
+- [ ] Donations via Stripe
+- [ ] Event registration
+- [ ] User profile screens
+- [ ] Push notifications
+- [ ] Events admin CRUD
+- [ ] Lectures admin CRUD
 
 ---
 
@@ -521,13 +555,13 @@ npx expo install react-native-safe-area-context  # Usually included already
 ```
 mosque-app/
 ├── app/                              # Expo Router - file-based routing
-│   ├── _layout.tsx                   # Root layout (providers, nav container)
-│   ├── index.tsx                     # Redirect to /home or /prayer-times
+│   ├── _layout.tsx                   # Root layout (ThemeProvider, Stack navigator)
 │   │
 │   ├── (tabs)/                       # Main tab navigator (public screens)
 │   │   ├── _layout.tsx               # Tab bar configuration
 │   │   ├── prayer-times.tsx          # Prayer times display
 │   │   ├── announcements/
+│   │   │   ├── _layout.tsx           # Stack navigator for announcements
 │   │   │   ├── index.tsx             # Announcements list
 │   │   │   └── [id].tsx              # Single announcement detail
 │   │   ├── events/
@@ -536,35 +570,29 @@ mosque-app/
 │   │   ├── lectures/
 │   │   │   ├── index.tsx             # Lectures list
 │   │   │   └── [id].tsx              # Lecture detail (embedded video)
-│   │   └── more.tsx                  # More menu (contact, donate, profile)
+│   │   └── more.tsx                  # More menu (contact, donate, profile, admin)
 │   │
-│   ├── (auth)/                       # Auth screens (unauthenticated only)
+│   ├── admin/                        # Admin screens (separate from tabs)
+│   │   ├── _layout.tsx               # Stack navigator with back button
+│   │   ├── index.tsx                 # Admin dashboard/menu
+│   │   ├── prayer-times.tsx          # Edit prayer times
+│   │   ├── announcements.tsx         # Manage announcements list
+│   │   └── announcement-form.tsx     # Create/edit announcement (uses ?id param)
+│   │
+│   ├── (auth)/                       # Auth screens (to be implemented)
 │   │   ├── _layout.tsx               # Auth layout (no tabs)
 │   │   ├── sign-in.tsx
 │   │   ├── sign-up.tsx
 │   │   └── forgot-password.tsx
 │   │
-│   ├── (protected)/                  # Requires authentication
+│   ├── (protected)/                  # Protected screens (to be implemented)
 │   │   ├── _layout.tsx               # Auth guard wrapper
 │   │   ├── donate.tsx                # Donation flow
-│   │   ├── profile/
-│   │   │   ├── index.tsx             # User profile
-│   │   │   ├── donations.tsx         # Donation history
-│   │   │   ├── registrations.tsx     # Event registrations
-│   │   │   └── notifications.tsx     # Notification preferences
-│   │   └── (admin)/                  # Admin-only screens
-│   │       ├── _layout.tsx           # Admin guard wrapper
-│   │       ├── index.tsx             # Admin dashboard
-│   │       ├── prayer-times.tsx      # Edit prayer times
-│   │       ├── announcements/
-│   │       │   ├── index.tsx         # Manage announcements
-│   │       │   └── [id].tsx          # Edit/create announcement
-│   │       ├── events/
-│   │       │   ├── index.tsx         # Manage events
-│   │       │   └── [id].tsx          # Edit/create event
-│   │       └── lectures/
-│   │           ├── index.tsx         # Manage lectures
-│   │           └── [id].tsx          # Edit/create lecture
+│   │   └── profile/
+│   │       ├── index.tsx             # User profile
+│   │       ├── donations.tsx         # Donation history
+│   │       ├── registrations.tsx     # Event registrations
+│   │       └── notifications.tsx     # Notification preferences
 │   │
 │   ├── contact.tsx                   # Contact categories + email links
 │   └── +not-found.tsx                # 404 screen
@@ -664,27 +692,150 @@ EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-key
 
 ## Code Patterns & Key Files
 
+### Color System (`src/constants/colors.ts`)
+
+**All colors must be imported from this file. Never use hardcoded hex values in components.**
+
+```typescript
+export const colors = {
+  // Primary brand colors
+  primary: '#1B5E20',           // Dark green - main actions, headers
+  primaryLight: '#4CAF50',      // Light green - accents
+  primaryTint: '#E8F5E9',       // Very light green - backgrounds
+
+  // Backgrounds
+  background: '#f5f5f5',        // Main app background (light gray)
+  backgroundWhite: '#fff',      // Cards, inputs, modals
+
+  // Text hierarchy
+  textPrimary: '#212121',       // Main text, headings
+  textSecondary: '#666',        // Secondary text, descriptions
+  textMuted: '#999',            // Placeholders, disabled text
+  textMedium: '#333',           // Medium emphasis text
+
+  // Borders
+  border: '#e0e0e0',            // Card borders, dividers
+  borderLight: '#eee',          // Subtle borders
+
+  // Status colors
+  error: '#d32f2f',             // Error states, destructive actions
+  errorLight: '#ffebee',        // Error backgrounds
+  warning: '#E65100',           // Warning states
+  success: '#4CAF50',           // Success states
+
+  // Switch component
+  switchTrackActive: '#81C784',
+  switchTrackInactive: '#ccc',
+  switchThumbActive: '#4CAF50',
+  switchThumbInactive: '#f4f3f4',
+
+  // Misc
+  white: '#fff',
+  shadow: '#000',
+  tabBarInactive: '#8E8E93',
+} as const;
+```
+
+**Usage:**
+```typescript
+import { colors } from '@/src/constants/colors';
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.background,
+  },
+  title: {
+    color: colors.textPrimary,
+  },
+});
+```
+
+### Accessibility Patterns
+
+All interactive and loading components must include proper accessibility attributes:
+
+```typescript
+// Loading states
+<View
+  style={styles.container}
+  accessibilityRole="progressbar"
+  accessibilityLabel={message || 'Loading'}
+  accessibilityState={{ busy: true }}
+>
+  <ActivityIndicator />
+</View>
+
+// Buttons
+<TouchableOpacity
+  accessibilityRole="button"
+  accessibilityLabel="Save changes"
+  accessibilityState={{ disabled: saving }}
+>
+  <Text>Save</Text>
+</TouchableOpacity>
+
+// Form inputs
+<TextInput
+  accessibilityLabel="Email address"
+  accessibilityHint="Enter your email to sign in"
+/>
+```
+
 ### Supabase Client (`src/lib/supabase.ts`)
+
+**Note:** We use an untyped Supabase client to avoid complex TypeScript generic inference issues. Type safety is maintained through manual type definitions in `src/types/database.ts` and explicit typing in hooks.
 
 ```typescript
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
-import { Database } from '@/types/database';
+import { Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Secure storage adapter for auth tokens
+// Native storage adapter using expo-secure-store
 const ExpoSecureStoreAdapter = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+  getItem: (key: string): Promise<string | null> => {
+    return SecureStore.getItemAsync(key);
+  },
+  setItem: (key: string, value: string): Promise<void> => {
+    return SecureStore.setItemAsync(key, value);
+  },
+  removeItem: (key: string): Promise<void> => {
+    return SecureStore.deleteItemAsync(key);
+  },
 };
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+// Web storage adapter using localStorage
+const WebStorageAdapter = {
+  getItem: (key: string): Promise<string | null> => {
+    if (typeof localStorage === 'undefined') {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(localStorage.getItem(key));
+  },
+  setItem: (key: string, value: string): Promise<void> => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+    return Promise.resolve();
+  },
+  removeItem: (key: string): Promise<void> => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+    return Promise.resolve();
+  },
+};
+
+// Use appropriate storage based on platform
+const storage = Platform.OS === 'web' ? WebStorageAdapter : ExpoSecureStoreAdapter;
+
+// IMPORTANT: No <Database> type parameter - use untyped client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: ExpoSecureStoreAdapter,
+    storage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
@@ -809,12 +960,58 @@ export const useAuth = () => {
 
 ### Root Layout (`app/_layout.tsx`)
 
+**Current implementation** (light mode only, no auth context yet):
+
 ```typescript
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
+import 'react-native-reanimated';
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [loaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return <RootLayoutNav />;
+}
+
+function RootLayoutNav() {
+  return (
+    <ThemeProvider value={DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="admin" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
+}
+```
+
+**Future implementation** (with auth and providers):
+
+```typescript
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { NotificationProvider } from '@/contexts/NotificationContext';
+import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
+import { AuthProvider } from '@/src/contexts/AuthContext';
+import { NotificationProvider } from '@/src/contexts/NotificationContext';
 import { StripeProvider } from '@stripe/stripe-react-native';
 
 export default function RootLayout() {
@@ -822,12 +1019,15 @@ export default function RootLayout() {
     <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}>
       <AuthProvider>
         <NotificationProvider>
-          <StatusBar style="auto" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(protected)" />
-          </Stack>
+          <ThemeProvider value={DefaultTheme}>
+            <StatusBar style="auto" />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="admin" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(protected)" />
+            </Stack>
+          </ThemeProvider>
         </NotificationProvider>
       </AuthProvider>
     </StripeProvider>
@@ -840,15 +1040,23 @@ export default function RootLayout() {
 ```typescript
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray,
+        tabBarInactiveTintColor: colors.tabBarInactive,
         headerShown: true,
+        headerStyle: {
+          backgroundColor: colors.backgroundWhite,
+        },
+        headerTintColor: colors.textPrimary,
+        headerTitleStyle: {
+          fontWeight: '600',
+          color: colors.textPrimary,
+        },
       }}
     >
       <Tabs.Screen
@@ -870,6 +1078,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="more"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="menu-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      {/* Future tabs - uncomment when implemented:
+      <Tabs.Screen
         name="events"
         options={{
           title: 'Events',
@@ -887,15 +1105,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: 'More',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="menu-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      */}
     </Tabs>
   );
 }
@@ -1005,23 +1215,78 @@ export default function ProtectedLayout() {
 
 ### Component Structure Pattern
 
+**File structure order:**
+1. Imports (React, React Native, expo, internal)
+2. Props interface (if applicable)
+3. Component function (named export preferred)
+4. StyleSheet at bottom
+
 ```typescript
-// Props interface at top
+import { StyleSheet, View, Text } from 'react-native';
+import { colors } from '@/src/constants/colors';
+import { PrayerTime } from '@/src/types/database';
+
+// Props interface at top (before component)
 interface PrayerTimeCardProps {
   prayer: PrayerTime;
   isNext?: boolean;
 }
 
-// Functional component with explicit return
+// Named export (not default) for better refactoring support
 export function PrayerTimeCard({ prayer, isNext }: PrayerTimeCardProps) {
   return (
-    // JSX
+    <View style={[styles.container, isNext && styles.highlighted]}>
+      <Text style={styles.name}>{prayer.prayer_name}</Text>
+      <Text style={styles.time}>{prayer.iqama_time}</Text>
+    </View>
   );
 }
 
-// Styles at bottom
+// Styles at bottom - always use colors from constants
 const styles = StyleSheet.create({
-  // ...
+  container: {
+    backgroundColor: colors.backgroundWhite,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  highlighted: {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  time: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+});
+```
+
+**Screen components** follow the same pattern with SafeAreaView:
+
+```typescript
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '@/src/constants/colors';
+
+export default function PrayerTimesScreen() {
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      {/* Screen content */}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 });
 ```
 
@@ -1124,6 +1389,16 @@ This is a suggested order. Adapt as needed:
 - Small, focused functions and components
 - Comments for non-obvious logic, not for obvious code
 
+### Styling
+- **Never use hardcoded colors** - always import from `@/src/constants/colors`
+- Use `StyleSheet.create()` for all styles (at bottom of file)
+- Use semantic color names (`textPrimary`, `background`) not specific names (`darkGreen`, `lightGray`)
+
+### Accessibility
+- All loading states must have `accessibilityRole="progressbar"` and `accessibilityState={{ busy: true }}`
+- All buttons must have `accessibilityRole="button"` and descriptive `accessibilityLabel`
+- Form inputs should have `accessibilityLabel` and optional `accessibilityHint`
+
 ### Testing
 - Tests should be readable as documentation
 - Test behavior, not implementation
@@ -1142,9 +1417,28 @@ This is a suggested order. Adapt as needed:
 
 - **Be pragmatic.** Working software over perfect architecture.
 - **Communicate blockers.** If something isn't working, explain what you tried and what failed.
-- **Make reasonable assumptions** for unspecified details (spacing, colors, copy). Note them for review.
+- **Make reasonable assumptions** for unspecified details (spacing, copy). Note them for review.
 - **Don't over-engineer.** This is a community app, not enterprise SaaS. Simple solutions are preferred.
 - **Test the happy path first**, then add edge case handling.
 - **Keep accessibility in mind.** Proper labels, sufficient contrast, touch target sizes.
+
+### Established Patterns to Follow
+
+1. **Colors:** Always use `import { colors } from '@/src/constants/colors'` - never hardcode hex values
+2. **Supabase:** Use untyped client - no `<Database>` generic on `createClient()`
+3. **Components:** Named exports, props interface at top, StyleSheet at bottom
+4. **Screens:** Use `SafeAreaView` with `edges={['bottom']}` and `backgroundColor: colors.background`
+5. **Navigation:** Use `headerBackTitle: ''` (not `headerBackTitleVisible`)
+6. **Accessibility:** Include accessibility props on all interactive elements and loading states
+7. **Admin routes:** Use `app/admin/` directory (not nested under protected routes)
+
+### Import Aliases
+
+Use the `@/` alias for imports from the project root:
+- `@/src/constants/colors` - Color constants
+- `@/src/components/ui/*` - UI components
+- `@/src/hooks/*` - Custom hooks
+- `@/src/lib/supabase` - Supabase client
+- `@/src/types/database` - TypeScript types
 
 When in doubt, ship something that works and iterate.

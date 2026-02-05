@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { formatAnnouncementDate } from '@/src/lib/utils';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/src/constants/colors';
 
 export default function AnnouncementDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -60,7 +61,7 @@ export default function AnnouncementDetailScreen() {
 
           {/* Date */}
           <View style={styles.metadata}>
-            <Ionicons name="time-outline" size={16} color="#666" />
+            <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.date}>{formattedDate}</Text>
           </View>
 
@@ -78,7 +79,7 @@ export default function AnnouncementDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundWhite,
   },
   contentContainer: {
     paddingBottom: 32,
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   heroImage: {
     width: '100%',
     height: 240,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#212121',
+    color: colors.textPrimary,
     lineHeight: 32,
     marginBottom: 12,
   },
@@ -106,16 +107,16 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   divider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     marginBottom: 20,
   },
   body: {
     fontSize: 16,
-    color: '#333',
+    color: colors.textDark,
     lineHeight: 26,
   },
 });

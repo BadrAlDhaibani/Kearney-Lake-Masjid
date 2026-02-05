@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Announcement } from '@/src/types/database';
 import { formatAnnouncementDate } from '@/src/lib/utils';
+import { colors } from '@/src/constants/colors';
 
 interface AnnouncementCardProps {
   announcement: Announcement;
@@ -41,7 +42,7 @@ export function AnnouncementCard({ announcement, onPress }: AnnouncementCardProp
 
         {/* Date */}
         <View style={styles.metadata}>
-          <Ionicons name="time-outline" size={14} color="#666" />
+          <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
           <Text style={styles.date}>{formattedDate}</Text>
         </View>
 
@@ -53,7 +54,7 @@ export function AnnouncementCard({ announcement, onPress }: AnnouncementCardProp
         {/* Read more indicator */}
         <View style={styles.readMore}>
           <Text style={styles.readMoreText}>Read more</Text>
-          <Ionicons name="chevron-forward" size={16} color="#1B5E20" />
+          <Ionicons name="chevron-forward" size={16} color={colors.primary} />
         </View>
       </View>
     </TouchableOpacity>
@@ -62,14 +63,14 @@ export function AnnouncementCard({ announcement, onPress }: AnnouncementCardProp
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundWhite,
     borderRadius: 12,
     marginHorizontal: 16,
     marginVertical: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    shadowColor: '#000',
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 180,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#212121',
+    color: colors.textPrimary,
     marginBottom: 8,
     lineHeight: 24,
   },
@@ -98,11 +99,11 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   preview: {
     fontSize: 15,
-    color: '#555',
+    color: colors.textMedium,
     lineHeight: 22,
     marginBottom: 12,
   },
@@ -114,6 +115,6 @@ const styles = StyleSheet.create({
   readMoreText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1B5E20',
+    color: colors.primary,
   },
 });
