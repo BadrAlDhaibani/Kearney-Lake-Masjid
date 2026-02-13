@@ -10,49 +10,46 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAnnouncements } from '@/src/hooks/useAnnouncements';
+import { useEvents } from '@/src/hooks/useEvents';
 import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { supabase } from '@/src/lib/supabase';
-import { Announcement } from '@/src/types/database';
-import { formatAnnouncementDate } from '@/src/lib/utils';
+import { Event } from '@/src/types/database';
+import { formatEventDateTime } from '@/src/lib/utils';
 import { colors } from '@/src/constants/colors';
 
-export default function AnnouncementsAdminScreen() {
+export default function EventsAdminScreen() {
   const router = useRouter();
-  const { announcements, isLoading, error, refetch } = useAnnouncements(true);
+  const { events, isLoading, error, refetch } = useEvents(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleCreate = () => {
-    router.push('/admin/announcement-form');
+    router.push('/admin/event-form');
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/admin/announcement-form?id=${id}`);
+    router.push(`/admin/event-form?id=${id}`);
   };
 
-  const handleTogglePublish = async (announcement: Announcement) => {
+  const handleTogglePublish = async (event: Event) => {
     try {
       const { error } = await supabase
-        .from('announcements')
-        .update({
-          is_published: !announcement.is_published,
-          published_at: !announcement.is_published ? new Date().toISOString() : announcement.published_at,
-        })
-        .eq('id', announcement.id);
+        .from('events')
+        .update({ is_published: !event.is_published })
+        .eq('id', event.id);
 
       if (error) throw error;
 
       await refetch();
     } catch (err: any) {
-      Alert.alert('Error', err.message ?? 'Failed to update announcement');
+      Alert.alert('Error', err.message ?? 'Failed to update event');
     }
   };
 
   const handleDelete = (id: string) => {
     Alert.alert(
-      'Delete Announcement',
-      'Are you sure you want to delete this announcement? This cannot be undone.',
+      'Delete Event',
+      'Are you sure you want to delete this event? This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -62,7 +59,7 @@ export default function AnnouncementsAdminScreen() {
             setDeletingId(id);
             try {
               const { error } = await supabase
-                .from('announcements')
+                .from('events')
                 .delete()
                 .eq('id', id);
 
@@ -70,7 +67,7 @@ export default function AnnouncementsAdminScreen() {
 
               await refetch();
             } catch (err: any) {
-              Alert.alert('Error', err.message ?? 'Failed to delete announcement');
+              Alert.alert('Error', err.message ?? 'Failed to delete event');
             } finally {
               setDeletingId(null);
             }
@@ -81,14 +78,14 @@ export default function AnnouncementsAdminScreen() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading announcements..." />;
+    return <LoadingSpinner message="Loading events..." />;
   }
 
   if (error) {
     return (
       <EmptyState
         icon="alert-circle-outline"
-        title="Error Loading Announcements"
+        title="Error Loading Events"
         message={error}
         actionLabel="Try Again"
         onAction={refetch}
@@ -103,24 +100,24 @@ export default function AnnouncementsAdminScreen() {
           style={styles.createButton}
           onPress={handleCreate}
           accessibilityRole="button"
-          accessibilityLabel="Create new announcement"
+          accessibilityLabel="Create new event"
         >
           <Ionicons name="add-circle" size={20} color={colors.white} />
           <Text style={styles.createButtonText}>Create New</Text>
         </TouchableOpacity>
       </View>
 
-      {announcements.length === 0 ? (
+      {events.length === 0 ? (
         <EmptyState
-          icon="newspaper-outline"
-          title="No Announcements"
-          message="Create your first announcement to get started."
-          actionLabel="Create Announcement"
+          icon="calendar-outline"
+          title="No Events"
+          message="Create your first event to get started."
+          actionLabel="Create Event"
           onAction={handleCreate}
         />
       ) : (
         <FlatList
-          data={announcements}
+          data={events}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
@@ -145,14 +142,27 @@ export default function AnnouncementsAdminScreen() {
                     </Text>
                   </View>
                 </View>
-                <Text style={styles.cardDate}>
-                  {formatAnnouncementDate(item.published_at || item.created_at)}
-                </Text>
+
+                <View style={styles.metaRow}>
+                  <Ionicons name="time-outline" size={13} color={colors.textSecondary} />
+                  <Text style={styles.cardMeta}>
+                    {formatEventDateTime(item.start_time)}
+                  </Text>
+                </View>
+
+                {item.location && (
+                  <View style={styles.metaRow}>
+                    <Ionicons name="location-outline" size={13} color={colors.textSecondary} />
+                    <Text style={styles.cardMeta}>{item.location}</Text>
+                  </View>
+                )}
               </View>
 
-              <Text style={styles.cardContent} numberOfLines={2}>
-                {item.content}
-              </Text>
+              {item.description && (
+                <Text style={styles.cardDescription} numberOfLines={2}>
+                  {item.description}
+                </Text>
+              )}
 
               <View style={styles.cardActions}>
                 <TouchableOpacity
@@ -246,13 +256,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardHeader: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   cardTitleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 8,
     gap: 12,
   },
   cardTitle: {
@@ -283,19 +293,29 @@ const styles = StyleSheet.create({
   draftText: {
     color: colors.warning,
   },
-  cardDate: {
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  cardMeta: {
     fontSize: 13,
     color: colors.textSecondary,
   },
-  cardContent: {
+  cardDescription: {
     fontSize: 14,
     color: colors.textMedium,
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   cardActions: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
   },
   actionButton: {
     flex: 1,

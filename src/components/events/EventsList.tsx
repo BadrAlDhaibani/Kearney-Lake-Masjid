@@ -48,7 +48,7 @@ export function EventsList({
   }, [events]);
 
   const handleEventPress = (id: string) => {
-    router.push(`/(tabs)/events/${id}` as any);
+    router.push({ pathname: '/(tabs)/events/[id]', params: { id } });
   };
 
   return (

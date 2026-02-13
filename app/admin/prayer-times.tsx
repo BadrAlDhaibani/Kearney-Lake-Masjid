@@ -101,6 +101,9 @@ export default function PrayerTimesAdminScreen() {
                     }
                     trackColor={{ false: colors.switchTrackInactive, true: colors.switchTrackActive }}
                     thumbColor={isActive ? colors.switchThumbActive : colors.switchThumbInactive}
+                    accessibilityRole="switch"
+                    accessibilityLabel={`${prayer.prayer_name} active`}
+                    accessibilityState={{ checked: isActive }}
                   />
                 </View>
               </View>
@@ -149,6 +152,9 @@ export default function PrayerTimesAdminScreen() {
                   style={styles.saveButton}
                   onPress={() => handleSave(prayer.id)}
                   disabled={saving}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Save changes for ${prayer.prayer_name}`}
+                  accessibilityState={{ disabled: saving }}
                 >
                   <Text style={styles.saveButtonText}>
                     {saving ? 'Saving...' : 'Save Changes'}

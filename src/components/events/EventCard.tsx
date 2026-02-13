@@ -23,16 +23,18 @@ export function EventCard({ event, onPress }: EventCardProps) {
       accessibilityHint="Tap to view event details"
     >
       {/* Square thumbnail */}
-      <Image
-        source={
-          event.image_url
-            ? { uri: event.image_url }
-            : require('@/assets/images/icon.png')
-        }
-        style={styles.image}
-        contentFit="cover"
-        transition={200}
-      />
+      {event.image_url ? (
+        <Image
+          source={{ uri: event.image_url }}
+          style={styles.image}
+          contentFit="cover"
+          transition={200}
+        />
+      ) : (
+        <View style={styles.imagePlaceholder}>
+          <Ionicons name="calendar-outline" size={32} color={colors.primary} />
+        </View>
+      )}
 
       {/* Content */}
       <View style={styles.content}>
@@ -58,14 +60,12 @@ export function EventCard({ event, onPress }: EventCardProps) {
         )}
 
         {/* Capacity indicator */}
-        {event.capacity && (
-          <View style={styles.capacityBadge}>
-            <Ionicons name="people-outline" size={12} color={colors.textSecondary} />
-            <Text style={styles.capacityText}>
-              {event.capacity} spots
-            </Text>
-          </View>
-        )}
+        <View style={styles.capacityBadge}>
+          <Ionicons name="people-outline" size={12} color={colors.primary} />
+          <Text style={styles.capacityText}>
+            {event.capacity ? `${event.capacity} spots` : 'Open entry'}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -91,6 +91,13 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     backgroundColor: colors.background,
+  },
+  imagePlaceholder: {
+    width: 100,
+    alignSelf: 'stretch',
+    backgroundColor: colors.primaryTint,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,

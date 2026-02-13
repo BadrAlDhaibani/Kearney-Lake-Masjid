@@ -10,12 +10,34 @@ export default function MoreScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.content}>
-        <Text style={styles.sectionHeader}>ADMINISTRATION</Text>
+        <Text style={styles.sectionHeader}>GET IN TOUCH</Text>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/contact')}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Contact Us"
+          accessibilityHint="View contact options and send us an email"
+        >
+          <View style={styles.menuItemLeft}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="mail-outline" size={24} color={colors.primary} />
+            </View>
+            <Text style={styles.menuItemText}>Contact Us</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
+        </TouchableOpacity>
+
+        <Text style={[styles.sectionHeader, styles.sectionHeaderSpaced]}>ADMINISTRATION</Text>
 
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push('/admin')}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Admin Panel"
+          accessibilityHint="Navigate to the admin panel"
         >
           <View style={styles.menuItemLeft}>
             <View style={styles.iconContainer}>
@@ -51,6 +73,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 12,
     marginTop: 8,
+  },
+  sectionHeaderSpaced: {
+    marginTop: 24,
   },
   menuItem: {
     flexDirection: 'row',

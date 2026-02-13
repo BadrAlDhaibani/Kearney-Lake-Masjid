@@ -44,6 +44,18 @@ export default function AdminLayout() {
           title: 'Edit Announcement',
         }}
       />
+      <Stack.Screen
+        name="events"
+        options={{
+          title: 'Manage Events',
+        }}
+      />
+      <Stack.Screen
+        name="event-form"
+        options={{
+          title: 'Edit Event',
+        }}
+      />
     </Stack>
   );
 }
@@ -61,6 +73,8 @@ function HeaderBackButton() {
         justifyContent: 'center',
       }}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      accessibilityRole="button"
+      accessibilityLabel="Go back"
     >
       <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
     </TouchableOpacity>

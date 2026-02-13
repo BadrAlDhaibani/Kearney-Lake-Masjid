@@ -18,7 +18,7 @@ export function AnnouncementsList({
   const router = useRouter();
 
   const handleAnnouncementPress = (id: string) => {
-    router.push(`/(tabs)/announcements/${id}` as any);
+    router.push({ pathname: '/(tabs)/announcements/[id]', params: { id } });
   };
 
   return (

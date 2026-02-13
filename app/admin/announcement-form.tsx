@@ -175,6 +175,9 @@ export default function AnnouncementFormScreen() {
             style={[styles.saveButton, saving && styles.saveButtonDisabled]}
             onPress={handleSave}
             disabled={saving}
+            accessibilityRole="button"
+            accessibilityLabel={id ? 'Update announcement' : 'Create announcement'}
+            accessibilityState={{ disabled: saving }}
           >
             <Text style={styles.saveButtonText}>
               {saving ? 'Saving...' : id ? 'Update Announcement' : 'Create Announcement'}
@@ -185,6 +188,9 @@ export default function AnnouncementFormScreen() {
             style={styles.cancelButton}
             onPress={() => router.back()}
             disabled={saving}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel"
+            accessibilityState={{ disabled: saving }}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>

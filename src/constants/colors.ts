@@ -47,6 +47,7 @@ export const colors = {
 
   // Common
   white: '#fff',
+  whiteSubtle: 'rgba(255, 255, 255, 0.8)',
   black: '#000',
 } as const;
 

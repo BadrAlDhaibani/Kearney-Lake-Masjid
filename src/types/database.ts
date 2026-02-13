@@ -39,6 +39,14 @@ export interface Event {
   created_by: string | null;
 }
 
+export interface ContactCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  contact_email: string;
+  display_order: number;
+}
+
 // Insert types (fields that can be omitted on insert)
 export type PrayerTimeInsert = Omit<PrayerTime, 'id' | 'updated_at'> & {
   id?: string;
@@ -60,6 +68,9 @@ export type EventInsert = Omit<Event, 'id' | 'created_at'> & {
 };
 
 export type EventUpdate = Partial<Omit<Event, 'id' | 'created_at'>>;
+
+export type ContactCategoryInsert = Omit<ContactCategory, 'id'> & { id?: string };
+export type ContactCategoryUpdate = Partial<Omit<ContactCategory, 'id'>>;
 
 // Supabase Database type definition
 export interface Database {

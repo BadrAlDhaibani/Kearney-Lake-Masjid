@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { colors } from '@/src/constants/colors';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -53,6 +54,16 @@ function RootLayoutNav() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="admin" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="contact"
+          options={{
+            title: 'Contact Us',
+            headerStyle: { backgroundColor: colors.backgroundWhite },
+            headerTintColor: colors.textPrimary,
+            headerTitleStyle: { fontWeight: '600' },
+            headerBackTitle: '',
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

@@ -15,6 +15,9 @@ export default function AdminPanelScreen() {
           style={styles.card}
           onPress={() => router.push('/admin/prayer-times')}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Prayer Times"
+          accessibilityHint="Manage prayer times and schedules"
         >
           <View style={styles.cardIcon}>
             <Ionicons name="time-outline" size={28} color={colors.primary} />
@@ -32,6 +35,9 @@ export default function AdminPanelScreen() {
           style={styles.card}
           onPress={() => router.push('/admin/announcements')}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Announcements"
+          accessibilityHint="Create and manage announcements"
         >
           <View style={styles.cardIcon}>
             <Ionicons name="newspaper-outline" size={28} color={colors.primary} />
@@ -40,6 +46,26 @@ export default function AdminPanelScreen() {
             <Text style={styles.cardTitle}>Announcements</Text>
             <Text style={styles.cardDescription}>
               Create and manage announcements
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/admin/events')}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Events"
+          accessibilityHint="Create and manage community events"
+        >
+          <View style={styles.cardIcon}>
+            <Ionicons name="calendar-outline" size={28} color={colors.primary} />
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Events</Text>
+            <Text style={styles.cardDescription}>
+              Create and manage community events
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
