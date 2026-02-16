@@ -47,6 +47,15 @@ export interface ContactCategory {
   display_order: number;
 }
 
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Insert types (fields that can be omitted on insert)
 export type PrayerTimeInsert = Omit<PrayerTime, 'id' | 'updated_at'> & {
   id?: string;

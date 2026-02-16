@@ -1,11 +1,12 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { colors } from '@/src/constants/colors';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { AuthProvider } from '@/src/contexts/AuthContext';
+import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,25 +47,26 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerBackTitle: '',
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="admin" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="contact"
-          options={{
-            title: 'Contact Us',
-            headerStyle: { backgroundColor: colors.backgroundWhite },
-            headerTintColor: colors.textPrimary,
-            headerTitleStyle: { fontWeight: '600' },
+    <AuthProvider>
+      <ThemeProvider value={DefaultTheme}>
+        <Stack
+          screenOptions={{
             headerBackTitle: '',
           }}
-        />
-      </Stack>
-    </ThemeProvider>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="admin" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="contact"
+            options={{
+              title: 'Contact Us',
+              headerBackTitle: '',
+              headerLeft: () => <HeaderBackButton />,
+            }}
+          />
+        </Stack>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

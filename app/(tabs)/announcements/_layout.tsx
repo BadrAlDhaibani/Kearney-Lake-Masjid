@@ -1,20 +1,13 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/src/constants/colors';
+import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
 
 export default function AnnouncementsLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: true,
-        headerStyle: {
-          backgroundColor: colors.backgroundWhite,
-        },
-        headerTintColor: colors.textPrimary,
-        headerTitleStyle: {
-          fontWeight: '600',
-          color: colors.textPrimary,
-        },
-        headerBackTitle: '',
+        headerBackVisible: false,
+        headerLeft: () => <HeaderBackButton />,
       }}
     >
       <Stack.Screen
@@ -28,7 +21,6 @@ export default function AnnouncementsLayout() {
         name="[id]"
         options={{
           title: 'Announcement',
-          headerBackTitle: '',
         }}
       />
     </Stack>

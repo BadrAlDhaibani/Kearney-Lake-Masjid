@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAnnouncements } from '@/src/hooks/useAnnouncements';
 import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';

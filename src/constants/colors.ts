@@ -29,6 +29,8 @@ export const colors = {
 
   // Status colors
   error: '#d32f2f',
+  errorLight: '#ffebee',
+  success: '#4CAF50',
   warning: '#E65100',
   warningBackground: '#FFF3E0',
 

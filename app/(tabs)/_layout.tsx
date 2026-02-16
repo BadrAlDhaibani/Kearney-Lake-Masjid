@@ -1,22 +1,14 @@
-import { Tabs } from 'expo-router';
+import { withLayoutContext } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/src/constants/colors';
+import { createSwipeableTabNavigator } from '@/src/navigation/SwipeableTabNavigator';
+
+const { Navigator } = createSwipeableTabNavigator();
+const Tabs = withLayoutContext(Navigator);
 
 export default function TabLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.tabActive,
-        tabBarInactiveTintColor: colors.tabInactive,
-        headerShown: true,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
+    <Tabs initialRouteName="prayer-times">
+      <Tabs.Screen name="index" options={{ href: null } as any} />
       <Tabs.Screen
         name="prayer-times"
         options={{
@@ -24,7 +16,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="time-outline" size={size} color={color} />
           ),
-          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -34,7 +25,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="newspaper-outline" size={size} color={color} />
           ),
-          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -44,7 +34,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
-          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -54,7 +43,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="menu-outline" size={size} color={color} />
           ),
-          headerShown: false,
         }}
       />
     </Tabs>
