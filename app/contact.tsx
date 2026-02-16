@@ -99,7 +99,7 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundWhite,
   },
   listContent: {
     padding: 16,

@@ -1,17 +1,27 @@
 import { Stack } from 'expo-router';
-import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
+import { DetailHeader } from '@/src/components/ui/DetailHeader';
 
 export default function AuthLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerBackTitle: '',
-        headerLeft: () => <HeaderBackButton />,
-      }}
-    >
-      <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
-      <Stack.Screen name="sign-up" options={{ title: 'Create Account' }} />
-      <Stack.Screen name="forgot-password" options={{ title: 'Reset Password' }} />
+    <Stack>
+      <Stack.Screen
+        name="sign-in"
+        options={{
+          header: () => <DetailHeader title="Sign In" />,
+        }}
+      />
+      <Stack.Screen
+        name="sign-up"
+        options={{
+          header: () => <DetailHeader title="Create Account" />,
+        }}
+      />
+      <Stack.Screen
+        name="forgot-password"
+        options={{
+          header: () => <DetailHeader title="Reset Password" />,
+        }}
+      />
     </Stack>
   );
 }

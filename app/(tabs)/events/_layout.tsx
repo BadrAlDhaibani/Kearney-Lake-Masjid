@@ -1,26 +1,19 @@
 import { Stack } from 'expo-router';
-import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
+import { DetailHeader } from '@/src/components/ui/DetailHeader';
 
 export default function EventsLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: true,
-        headerBackVisible: false,
-        headerLeft: () => <HeaderBackButton />,
-      }}
-    >
+    <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: 'Events',
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="[id]"
         options={{
-          title: 'Event',
+          header: () => <DetailHeader title="Event" />,
         }}
       />
     </Stack>

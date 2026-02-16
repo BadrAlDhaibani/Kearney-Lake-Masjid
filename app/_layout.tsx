@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider } from '@/src/contexts/AuthContext';
-import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
+import { DetailHeader } from '@/src/components/ui/DetailHeader';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -49,20 +49,14 @@ function RootLayoutNav() {
   return (
     <AuthProvider>
       <ThemeProvider value={DefaultTheme}>
-        <Stack
-          screenOptions={{
-            headerBackTitle: '',
-          }}
-        >
+        <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="admin" options={{ headerShown: false }} />
           <Stack.Screen
             name="contact"
             options={{
-              title: 'Contact Us',
-              headerBackTitle: '',
-              headerLeft: () => <HeaderBackButton />,
+              header: () => <DetailHeader title="Contact Us" />,
             }}
           />
         </Stack>

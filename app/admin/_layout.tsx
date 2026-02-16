@@ -1,51 +1,45 @@
 import { Stack } from 'expo-router';
 import { AdminGuard } from '@/src/components/admin/AdminGuard';
-import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
+import { DetailHeader } from '@/src/components/ui/DetailHeader';
 
 export default function AdminLayout() {
   return (
     <AdminGuard>
-      <Stack
-        screenOptions={{
-          headerShown: true,
-          headerBackTitle: '',
-          headerLeft: () => <HeaderBackButton />,
-        }}
-      >
+      <Stack>
         <Stack.Screen
           name="index"
           options={{
-            title: 'Admin Panel',
+            header: () => <DetailHeader title="Admin Panel" />,
           }}
         />
         <Stack.Screen
           name="prayer-times"
           options={{
-            title: 'Manage Prayer Times',
+            header: () => <DetailHeader title="Manage Prayer Times" />,
           }}
         />
         <Stack.Screen
           name="announcements"
           options={{
-            title: 'Manage Announcements',
+            header: () => <DetailHeader title="Manage Announcements" />,
           }}
         />
         <Stack.Screen
           name="announcement-form"
           options={{
-            title: 'Edit Announcement',
+            header: () => <DetailHeader title="Edit Announcement" />,
           }}
         />
         <Stack.Screen
           name="events"
           options={{
-            title: 'Manage Events',
+            header: () => <DetailHeader title="Manage Events" />,
           }}
         />
         <Stack.Screen
           name="event-form"
           options={{
-            title: 'Edit Event',
+            header: () => <DetailHeader title="Edit Event" />,
           }}
         />
       </Stack>
