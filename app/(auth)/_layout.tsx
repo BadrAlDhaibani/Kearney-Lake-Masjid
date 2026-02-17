@@ -22,6 +22,18 @@ export default function AuthLayout() {
           header: () => <DetailHeader title="Reset Password" />,
         }}
       />
+      <Stack.Screen
+        name="callback"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="reset-password"
+        options={{
+          header: () => <DetailHeader title="Set New Password" />,
+        }}
+      />
     </Stack>
   );
 }

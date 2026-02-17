@@ -1,11 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { AuthProvider } from '@/src/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/src/contexts/AuthContext';
 import { DetailHeader } from '@/src/components/ui/DetailHeader';
 
 export {
@@ -45,10 +45,25 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+/** Watches for PASSWORD_RECOVERY auth events and redirects to reset-password */
+function AuthEventHandler() {
+  const { authEvent } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authEvent?.type === 'PASSWORD_RECOVERY') {
+      router.replace('/(auth)/reset-password');
+    }
+  }, [authEvent]);
+
+  return null;
+}
+
 function RootLayoutNav() {
   return (
     <AuthProvider>
       <ThemeProvider value={DefaultTheme}>
+        <AuthEventHandler />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />

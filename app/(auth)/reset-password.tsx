@@ -11,21 +11,33 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Linking from 'expo-linking';
 import { colors } from '@/src/constants/colors';
-import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
 
-export default function ForgotPasswordScreen() {
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+
+export default function ResetPasswordScreen() {
   const router = useRouter();
+  const { authEvent, clearAuthEvent } = useAuth();
 
-  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!email.trim()) {
-      setError('Please enter your email address.');
+  const handleReset = async () => {
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (!authEvent || authEvent.type !== 'PASSWORD_RECOVERY') {
+      setError('Invalid recovery session. Please request a new password reset.');
       return;
     }
 
@@ -33,41 +45,37 @@ export default function ForgotPasswordScreen() {
     setError(null);
 
     try {
-      const redirectUrl = Linking.createURL('callback');
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: redirectUrl,
+      // Call Supabase REST API directly with the recovery access token.
+      // We bypass the Supabase client because setSession() hangs in Expo Go.
+      const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${authEvent.accessToken}`,
+        },
+        body: JSON.stringify({ password }),
       });
-      if (error) throw error;
-      setSubmitted(true);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.msg || 'Failed to update password.');
+      }
+
+      clearAuthEvent();
+
+      router.replace({
+        pathname: '/(auth)/sign-in',
+        params: { message: 'Password updated successfully. Please sign in.' },
+      });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to send reset email.';
+      const message = err instanceof Error ? err.message : 'Failed to update password.';
       setError(message);
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (submitted) {
-    return (
-      <View style={styles.confirmedContainer}>
-        <View style={styles.confirmedCard}>
-          <Text style={styles.confirmedTitle}>Check your email</Text>
-          <Text style={styles.confirmedMessage}>
-            If an account exists for {email.trim()}, you'll receive a password reset link shortly.
-          </Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.replace('/(auth)/sign-in')}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Back to Sign In"
-          >
-            <Text style={styles.buttonText}>Back to Sign In</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView
@@ -80,7 +88,7 @@ export default function ForgotPasswordScreen() {
       >
         <View style={styles.form}>
           <Text style={styles.description}>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your new password below.
           </Text>
 
           {error && (
@@ -90,44 +98,51 @@ export default function ForgotPasswordScreen() {
           )}
 
           <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>New Password</Text>
             <TextInput
               style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="At least 6 characters"
               placeholderTextColor={colors.textMuted}
-              keyboardType="email-address"
+              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
-              accessibilityLabel="Email address"
-              accessibilityHint="Enter the email address associated with your account"
+              accessibilityLabel="New password"
+              accessibilityHint="Enter a new password with at least 6 characters"
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <TextInput
+              style={styles.input}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Re-enter your password"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Confirm password"
+              accessibilityHint="Re-enter your new password to confirm"
             />
           </View>
 
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleSubmit}
+            onPress={handleReset}
             disabled={isLoading}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel="Send Reset Link"
+            accessibilityLabel="Update Password"
             accessibilityState={{ disabled: isLoading }}
           >
             {isLoading ? (
               <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Text style={styles.buttonText}>Send Reset Link</Text>
+              <Text style={styles.buttonText}>Update Password</Text>
             )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.backLink}
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Back to Sign In"
-          >
-            <Text style={styles.backLinkText}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -196,37 +211,5 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: '600',
-  },
-  backLink: {
-    alignItems: 'center',
-  },
-  backLinkText: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '500',
-  },
-  confirmedContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: colors.backgroundWhite,
-  },
-  confirmedCard: {
-    backgroundColor: colors.backgroundWhite,
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 16,
-  },
-  confirmedTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  confirmedMessage: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 22,
   },
 });
