@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider, useAuth } from '@/src/contexts/AuthContext';
 import { DetailHeader } from '@/src/components/ui/DetailHeader';
+import { useNotificationSetup } from '@/src/hooks/useNotificationSetup';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,6 +46,12 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+/** Registers push token and sets up notification listeners */
+function NotificationSetup() {
+  useNotificationSetup();
+  return null;
+}
+
 /** Watches for PASSWORD_RECOVERY auth events and redirects to reset-password */
 function AuthEventHandler() {
   const { authEvent } = useAuth();
@@ -64,6 +71,7 @@ function RootLayoutNav() {
     <AuthProvider>
       <ThemeProvider value={DefaultTheme}>
         <AuthEventHandler />
+        <NotificationSetup />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -72,6 +80,12 @@ function RootLayoutNav() {
             name="contact"
             options={{
               header: () => <DetailHeader title="Contact Us" />,
+            }}
+          />
+          <Stack.Screen
+            name="notifications"
+            options={{
+              header: () => <DetailHeader title="Notifications" />,
             }}
           />
         </Stack>

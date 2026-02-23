@@ -94,21 +94,41 @@ These decisions have been made. Do not revisit or question them unless you encou
 - [x] Admin: Prayer times management
 - [x] Admin: Announcements management (list, create, edit)
 
-### In Progress
-- [ ] Events listing and detail views
-- [ ] Lectures with video links
-- [ ] Contact section
-- [ ] More menu completion
+### Completed (Phase 1 Full + Phase 2 Partial + Phase 3 Partial)
+- [x] Events listing and detail views (grouped by date)
+- [x] Contact section (email categories via Linking)
+- [x] More menu (profile, sign in/out, admin link, notification settings)
+- [x] Custom SwipeableTabNavigator (swipe between tabs)
+- [x] AuthContext and user authentication (sign in, sign up, password reset with deep linking)
+- [x] Auth screens (sign-in, sign-up, forgot-password, reset-password, callback)
+- [x] Push notifications — client side (token registration, preferences screen, foreground handling, tap-to-navigate)
+- [x] Events admin CRUD (list, create, edit, publish/unpublish, delete)
 
-### Not Started (Phase 2 & 3)
-- [ ] AuthContext and user authentication
-- [ ] Protected route wrappers
+### Not Started
+- [ ] Lectures (screens, hook, components, admin CRUD)
 - [ ] Donations via Stripe
-- [ ] Event registration
-- [ ] User profile screens
-- [ ] Push notifications
-- [ ] Events admin CRUD
+- [ ] Event registration (capacity checking, registration button)
+- [ ] User profile screens (edit profile, donation history, registration history)
+- [ ] Push notifications — backend (Supabase Edge Function to send notifications)
 - [ ] Lectures admin CRUD
+
+### Current Sprint — Admin UX Polish (from testing feedback)
+- [x] Pull-to-refresh on admin announcements and events management pages
+- [x] Auto-refresh admin lists when returning from create/edit forms (via `useFocusEffect`)
+- [x] Move "Create New" buttons into header bar (green pill button with + icon)
+- [x] Match header background color to page background (both grey `#f5f5f5`)
+- [x] `DetailHeader` component updated with optional `rightAction` prop
+- [ ] Date pickers for date fields (native calendar picker instead of text input)
+- [ ] Time pickers for time fields (12-hour AM/PM format instead of 24hr text input)
+- [ ] Events public page header ("UPCOMING EVENTS" matching news page style)
+- [ ] Switch/toggle thumb color fix (green thumb when enabled by default)
+
+### EAS / Build Setup
+- Project linked to EAS (projectId: a095c433-31e7-41e3-adff-cd81a131c6d7)
+- iOS dev build configured with ad-hoc distribution
+- APNs key generated for push notifications
+- Bundle identifier: `com.badraldhaibani.kearneylakemasjid`
+- Development testing via `npx expo start --dev-client` (not Expo Go)
 
 ---
 
@@ -577,24 +597,20 @@ mosque-app/
 │   │   ├── index.tsx                 # Admin dashboard/menu
 │   │   ├── prayer-times.tsx          # Edit prayer times
 │   │   ├── announcements.tsx         # Manage announcements list
-│   │   └── announcement-form.tsx     # Create/edit announcement (uses ?id param)
+│   │   ├── announcement-form.tsx     # Create/edit announcement (uses ?id param)
+│   │   ├── events.tsx                # Manage events list
+│   │   └── event-form.tsx            # Create/edit event (uses ?id param)
 │   │
-│   ├── (auth)/                       # Auth screens (to be implemented)
+│   ├── (auth)/                       # Auth screens
 │   │   ├── _layout.tsx               # Auth layout (no tabs)
 │   │   ├── sign-in.tsx
 │   │   ├── sign-up.tsx
-│   │   └── forgot-password.tsx
-│   │
-│   ├── (protected)/                  # Protected screens (to be implemented)
-│   │   ├── _layout.tsx               # Auth guard wrapper
-│   │   ├── donate.tsx                # Donation flow
-│   │   └── profile/
-│   │       ├── index.tsx             # User profile
-│   │       ├── donations.tsx         # Donation history
-│   │       ├── registrations.tsx     # Event registrations
-│   │       └── notifications.tsx     # Notification preferences
+│   │   ├── forgot-password.tsx
+│   │   ├── reset-password.tsx        # Deep-linked password reset
+│   │   └── callback.tsx              # Auth deep link handler
 │   │
 │   ├── contact.tsx                   # Contact categories + email links
+│   ├── notifications.tsx             # Notification preferences (auth-guarded inline)
 │   └── +not-found.tsx                # 404 screen
 │
 ├── src/
@@ -636,23 +652,22 @@ mosque-app/
 │   │       └── ImagePicker.tsx
 │   │
 │   ├── contexts/                     # React Context providers
-│   │   ├── AuthContext.tsx           # User auth state
-│   │   └── NotificationContext.tsx   # Push notification handling
+│   │   └── AuthContext.tsx           # User auth state + useAuth hook
 │   │
 │   ├── hooks/                        # Custom hooks
-│   │   ├── useAuth.ts                # Auth helpers
-│   │   ├── usePrayerTimes.ts         # Fetch + cache prayer times
-│   │   ├── useAnnouncements.ts
-│   │   ├── useEvents.ts
-│   │   ├── useLectures.ts
-│   │   ├── useEventRegistration.ts
-│   │   └── useAdmin.ts               # Admin status check
+│   │   ├── usePrayerTimes.ts         # Fetch + cache prayer times, real-time sync
+│   │   ├── useAnnouncements.ts       # List + single announcement hooks
+│   │   ├── useEvents.ts              # List + single event hooks
+│   │   ├── useContactCategories.ts   # Contact categories hook
+│   │   ├── useNotificationSetup.ts   # Root-level push token + listener setup
+│   │   └── useNotificationPreferences.ts  # Per-device notification toggle CRUD
+│   │
+│   ├── navigation/                   # Custom navigators
+│   │   └── SwipeableTabNavigator.tsx  # Swipeable tab bar using react-native-tab-view
 │   │
 │   ├── lib/                          # Utilities and clients
 │   │   ├── supabase.ts               # Supabase client setup
-│   │   ├── stripe.ts                 # Stripe initialization
-│   │   ├── notifications.ts          # Push notification helpers
-│   │   ├── storage.ts                # Async storage helpers
+│   │   ├── notifications.ts          # Push notification helpers (permissions, token, channel)
 │   │   └── utils.ts                  # General utilities
 │   │
 │   ├── types/                        # TypeScript types
@@ -1307,8 +1322,7 @@ App Launch
 │                                                              │
 │  More Menu Contains:                                         │
 │  • Contact Us (public)                                       │
-│  • Donate → requires auth                                    │
-│  • Profile → requires auth                                   │
+│  • Notification Settings → requires auth                     │
 │  • Sign In / Sign Up                                         │
 │  • Admin Panel → requires auth + is_admin                    │
 └─────────────────────────────────────────────────────────────┘
@@ -1352,31 +1366,28 @@ App Launch
 
 ## Build Order
 
-This is a suggested order. Adapt as needed:
+### Completed
+1. ~~Project setup (Expo init, dependencies, Supabase client)~~
+2. ~~Theme and base UI components~~
+3. ~~Prayer times (hook, components, screen, real-time sync)~~
+4. ~~Announcements (hook, components, list/detail screens)~~
+5. ~~Events (hook, components, list/detail screens, grouped by date)~~
+6. ~~Contact section (email categories via Linking)~~
+7. ~~Tab navigation (custom SwipeableTabNavigator) and More menu~~
+8. ~~Auth context and screens (sign-in, sign-up, password reset with deep linking)~~
+9. ~~Push notifications — client side (token registration, preferences, foreground handling)~~
+10. ~~Admin guard component~~
+11. ~~Prayer times admin screen~~
+12. ~~Announcements admin CRUD~~
+13. ~~Events admin CRUD~~
+14. ~~EAS build setup (iOS dev build, APNs key, device provisioning)~~
 
-### Phase 1 - Public Information Layer
-1. Project setup (Expo init, dependencies, Supabase client)
-2. Theme and base UI components
-3. Prayer times (hook, components, screen, tests)
-4. Announcements (hook, components, list/detail screens, tests)
-5. Lectures (hook, components, list/detail screens, tests)
-6. Contact section
-7. Tab navigation and "More" menu
-
-### Phase 2 - User Features
-8. Auth context and screens
-9. Protected route wrapper
-10. Donations flow (Stripe integration)
-11. Event registration
-12. User profile screens
-13. Push notification setup
-
-### Phase 3 - Admin Features
-14. Admin guard component
-15. Prayer times admin screen
-16. Announcements admin CRUD
-17. Events admin CRUD
-18. Lectures admin CRUD
+### Remaining
+15. Lectures (hook, components, list/detail screens, admin CRUD)
+16. Donations flow (Stripe integration)
+17. Event registration (capacity checking, registration button)
+18. User profile screens (edit profile, history)
+19. Push notifications — backend (Supabase Edge Function to send to registered tokens)
 
 ---
 
@@ -1428,9 +1439,11 @@ This is a suggested order. Adapt as needed:
 2. **Supabase:** Use untyped client - no `<Database>` generic on `createClient()`
 3. **Components:** Named exports, props interface at top, StyleSheet at bottom
 4. **Screens:** Use `SafeAreaView` with `edges={['bottom']}` and `backgroundColor: colors.background`
-5. **Navigation:** Use `headerBackTitle: ''` (not `headerBackTitleVisible`)
+5. **Headers:** Use custom `DetailHeader` component (`src/components/ui/DetailHeader.tsx`) instead of native stack header options — the native header mispositions back button inside SwipeableTabNavigator
 6. **Accessibility:** Include accessibility props on all interactive elements and loading states
 7. **Admin routes:** Use `app/admin/` directory (not nested under protected routes)
+8. **Auth-guarded screens:** Use inline auth check + redirect (like `notifications.tsx` and `contact.tsx`) rather than a `(protected)` route group — keep it simple until there are many protected screens
+9. **Development:** Use `npx expo start --dev-client` (not Expo Go) — push notifications and other native modules require the dev build
 
 ### Import Aliases
 

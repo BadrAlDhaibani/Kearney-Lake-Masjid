@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,11 +6,14 @@ import {
   View,
   FlatList,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAnnouncements } from '@/src/hooks/useAnnouncements';
+import { DetailHeader } from '@/src/components/ui/DetailHeader';
 import { LoadingSpinner } from '@/src/components/ui/LoadingSpinner';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { supabase } from '@/src/lib/supabase';
@@ -22,6 +25,20 @@ export default function AnnouncementsAdminScreen() {
   const router = useRouter();
   const { announcements, isLoading, error, refetch } = useAnnouncements(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Re-fetch when screen regains focus (e.g. returning from create/edit form)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
 
   const handleCreate = () => {
     router.push('/admin/announcement-form');
@@ -97,19 +114,29 @@ export default function AnnouncementsAdminScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={handleCreate}
-          accessibilityRole="button"
-          accessibilityLabel="Create new announcement"
-        >
-          <Ionicons name="add-circle" size={20} color={colors.white} />
-          <Text style={styles.createButtonText}>Create New</Text>
-        </TouchableOpacity>
-      </View>
-
+    <>
+      <Stack.Screen
+        options={{
+          header: () => (
+            <DetailHeader
+              title="Manage Announcements"
+              rightAction={
+                <TouchableOpacity
+                  style={styles.headerCreateButton}
+                  onPress={handleCreate}
+                  accessibilityRole="button"
+                  accessibilityLabel="Create new announcement"
+                  hitSlop={8}
+                >
+                  <Ionicons name="add" size={16} color={colors.white} />
+                  <Text style={styles.headerCreateText}>Create New</Text>
+                </TouchableOpacity>
+              }
+            />
+          ),
+        }}
+      />
+      <SafeAreaView style={styles.container} edges={['bottom']}>
       {announcements.length === 0 ? (
         <EmptyState
           icon="newspaper-outline"
@@ -198,9 +225,17 @@ export default function AnnouncementsAdminScreen() {
             </View>
           )}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+            />
+          }
         />
       )}
     </SafeAreaView>
+    </>
   );
 }
 
@@ -209,25 +244,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    padding: 16,
-    backgroundColor: colors.backgroundWhite,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  createButton: {
-    backgroundColor: colors.primary,
+  headerCreateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    gap: 8,
+    gap: 4,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
-  createButtonText: {
-    color: colors.white,
-    fontSize: 16,
+  headerCreateText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: colors.white,
   },
   listContent: {
     padding: 16,

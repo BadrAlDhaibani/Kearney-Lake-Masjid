@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ReactNode } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderBackButton } from '@/src/components/ui/HeaderBackButton';
 import { colors } from '@/src/constants/colors';
 
 interface DetailHeaderProps {
   title: string;
+  rightAction?: ReactNode;
 }
 
-export function DetailHeader({ title }: DetailHeaderProps) {
+export function DetailHeader({ title, rightAction }: DetailHeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -15,7 +16,11 @@ export function DetailHeader({ title }: DetailHeaderProps) {
       <View style={styles.content}>
         <HeaderBackButton />
         <Text style={styles.title}>{title}</Text>
-        <View style={styles.spacer} />
+        {rightAction ? (
+          <View style={styles.rightAction}>{rightAction}</View>
+        ) : (
+          <View style={styles.spacer} />
+        )}
       </View>
     </View>
   );
@@ -23,9 +28,7 @@ export function DetailHeader({ title }: DetailHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.backgroundWhite,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
   content: {
     height: 44,
@@ -42,5 +45,10 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: 32,
+  },
+  rightAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
 });

@@ -47,6 +47,23 @@ export default function MoreScreen() {
             </View>
 
             <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.push('/notifications')}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Notification Settings"
+              accessibilityHint="Manage your push notification preferences"
+            >
+              <View style={styles.menuItemLeft}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name="notifications-outline" size={24} color={colors.primary} />
+                </View>
+                <Text style={styles.menuItemText}>Notification Settings</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.menuItem, styles.signOutItem]}
               onPress={handleSignOut}
               activeOpacity={0.7}
